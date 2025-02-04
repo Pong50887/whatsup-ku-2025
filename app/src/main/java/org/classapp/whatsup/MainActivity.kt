@@ -72,7 +72,6 @@ fun MainScreenWithBottomNavBar() {
                     icon = { Icon( imageVector = itemInfo.icon, contentDescription = itemInfo.label )},
                     label = { Text(text = itemInfo.label) })
             }
-            
         }
     }) { paddingValues -> NavHost(navController = navController,
         startDestination = DestinationScreens.Highlight.route,
