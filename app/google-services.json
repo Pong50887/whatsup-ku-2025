@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "454071964003",
+    "project_id": "jovial-idiom-450608-s5",
+    "storage_bucket": "jovial-idiom-450608-s5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:454071964003:android:fe59da174203cce75b8356",
+        "android_client_info": {
+          "package_name": "org.classapp.whatsup"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFoJ4RO3FAeWtPd-lObNWIYAxcYZDUeCI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,41 +1,102 @@
 package org.classapp.whatsup
 
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.location.Location
+import android.net.LocalServerSocket
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.DisposableEffectScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.modifier.modifierLocalMapOf
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
+import androidx.core.content.PackageManagerCompat
+import androidx.navigation.ActivityNavigatorExtras
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import org.classapp.whatsup.customui.theme.AppTheme
 import org.classapp.whatsup.ui.theme.WhatsUpTheme
 
 @Composable
 fun NearMeScreen(){
-    WhatsUpTheme {
+    val screenContext = LocalContext.current
+    val locationProvider = LocationServices.getFusedLocationProviderClient(screenContext)
+    var latValue:Double? by remember { mutableStateOf(0.0) }
+    var lonValue:Double? by remember { mutableStateOf(0.0) }
+    val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(p0: LocationResult) {
+            super.onLocationResult(p0)
+            latValue = p0.lastLocation?.latitude
+            lonValue = p0.lastLocation?.longitude
+        }
+    }
+    val permissionDialog = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = {isGranted: Boolean ->
+            if (isGranted){
+                getCurrentUserLocation(locationProvider,locationCallback)
+            }
+        })
+
+    DisposableEffect(key1 = locationProvider) {
+        val permissionStatus = ContextCompat.checkSelfPermission(
+            screenContext,
+            android.Manifest.permission.ACCESS_FINE_LOCATION
+        )
+        if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
+            getCurrentUserLocation(locationProvider,locationCallback)
+        }
+        else {
+            permissionDialog.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+        onDispose {
+            // remove observer if any
+            locationProvider.removeLocationUpdates(locationCallback)
+        }
+    }
+    AppTheme {
         Surface(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(4.dp),
             color = MaterialTheme.colorScheme.background
-        ) {
+        ){
             Column (modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally)
-            {
-                Text(text = "Event near Me")
-                LocationCoordinateDisplay(lat="0.0", lon = "0.0")
+                horizontalAlignment = Alignment.CenterHorizontally){
+                Text(text = "Event Near Me")
+                LocationCoordinateDisplay(lat = latValue.toString(), lon= lonValue.toString())
             }
         }
     }
@@ -47,9 +108,20 @@ fun NearMeScreenPreview(){
     NearMeScreen()
 }
 
+@SuppressLint("MissingPermission")
+private fun getCurrentUserLocation(locationProvider: FusedLocationProviderClient, locationCb: LocationCallback){
+    val locationReq = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY,0).build()
+    locationProvider.requestLocationUpdates(locationReq, locationCb, null)
+}
+
+
+
+
 @Composable
 fun LocationCoordinateDisplay(lat:String, lon:String) {
-    ConstraintLayout ( modifier = Modifier.fillMaxWidth(1f).padding(all = 8.dp)){
+    ConstraintLayout ( modifier = Modifier
+        .fillMaxWidth(1f)
+        .padding(all = 8.dp)){
         val (goBtn, latField, lonField) = createRefs()
         Button(onClick = {/*TODO*/}, modifier = Modifier.constrainAs(goBtn){
             top.linkTo(parent.top, margin = 8.dp)
