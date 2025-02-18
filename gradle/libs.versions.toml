@@ -20,6 +20,8 @@ playServicesMaps = "19.0.0"
 googleService = "4.4.2"
 firebaseBom = "33.6.0"
 firebaseFirestore = "25.1.1"
+googleMapsServices = "2.2.0"
+mapsCompose = "6.4.4"
 
 
 [libraries]
@@ -47,6 +49,8 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+google-maps-services = { group = "com.google.maps", name = "google-maps-services", version.ref = "googleMapsServices" }
+maps-compose = { group = "com.google.maps.android", name = "maps-compose", version.ref = "mapsCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
